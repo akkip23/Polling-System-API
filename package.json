@@ -1,0 +1,16 @@
+{
+  "name": "polling-system-api",
+  "version": "1.0.0",
+  "description": "this is a polling system API where anyone can add question to it and provide options and can also select one of it's options.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.4.1"
+  }
+}
