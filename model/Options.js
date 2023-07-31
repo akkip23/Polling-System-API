@@ -9,15 +9,18 @@ optionSchema = new mongoose.Schema({
   votes: {
     type: "string",
     required: true,
+    default: 0,
   },
   question_id: {
     type: "string",
     required: true,
   },
   link_to_vote: {
-    type: "string",
-    required: true,
+    type: "string",    
+    default: ""
   },
+}, {
+  timestamps: true
 });
 
 const Options = mongoose.model("Options", optionSchema);

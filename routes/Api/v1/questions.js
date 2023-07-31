@@ -8,5 +8,9 @@ router.post("/create", questionController.create);
 router.get("/view", questionController.view);
 //view question with a particular ID
 router.get("/:id", questionController.viewQuestionWithID);
+//create options for a particular questions
+router.post("/:id/options/create", questionController.findQuestionandCreateOptions);
+//delete the question and it's associated options
+router.delete("/:id/delete", questionController.deleteQuestion);
 
 module.exports = router;
