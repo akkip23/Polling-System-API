@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 questionSchema = new mongoose.Schema(
   {
     question: {
-      type: "string",
+      type: String,
       reequried: true,
     },
     options: [
