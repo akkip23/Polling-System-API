@@ -1,10 +1,9 @@
 //require mongoose to connect to DB
 const mongoose = require("mongoose");
 
+//connect to mongoDB database
 mongoose
-  .connect(
-    `mongodb+srv://akshaypawle23:d1Ek4P7WguzL3LEd@cluster0.tkdtine.mongodb.net/`
-  )
+  .connect(process.env.DB)
   .then(() => {
     console.log("connection successful to DB");
   })

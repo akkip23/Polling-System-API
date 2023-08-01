@@ -1,10 +1,11 @@
+//require .env package to access in the whole project
+const dotenv = require("dotenv").config({path: "./config.env"}) 
 //require express to use all functionalities of express
-const { error } = require("console");
 const express = require("express");
 //app var get access to all functions for express
 const app = express();
 //port to run app on
-const port = 8000;
+const port = process.env.PORT;
 //make connection to DB
 const db = require("./config/mongoose");
 

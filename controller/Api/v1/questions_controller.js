@@ -1,10 +1,11 @@
 //require schema to save question data
 const Questions = require("../../../model/Questions");
+//require schema to save Options data
 const Options = require("../../../model/Options");
 
 //create controller action to handle req for new question and add it to DB
 module.exports.create = async function (req, res) {
-  if (req.body.question == undefined || req.body.question == null) {
+  if (req.body.question == undefined || req.body.question == null) { 
     return res.status(400).json({
       message:
         "error creating question wrong input key name use 'question' as key",
