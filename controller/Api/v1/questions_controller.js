@@ -89,7 +89,7 @@ module.exports.findQuestionandCreateOptions = async function (req, res) {
         await Options.findByIdAndUpdate(
           option.id,
           {
-            link_to_vote: `http://localhost:8000/api/v1/options/${option.id}/add_vote`,
+            link_to_vote: `https://polling-system-api-production-add7.up.railway.app/api/v1/options/${option.id}/add_vote`,
           },
           { new: true }
         ).then((updateOption) => {
