@@ -14,7 +14,7 @@ module.exports.create = async function (req, res) {
   await Questions.create({ question: req.body.question })
     .then((question) => {
       return res.status(200).json({
-        message: `${question.question} saved successfully`,
+        message: `${question.question} Created successfully`,
       });
     })
     .catch((err) => {
@@ -26,7 +26,7 @@ module.exports.create = async function (req, res) {
 
 //view all question list
 module.exports.view = async function (req, res) {
-  await Questions.find({}).then((data) => {
+  await Questions.find({}).populate("options").then((data) => {
     if (data.length > 0) {
       return res.status(200).json({
         questions: {
@@ -72,6 +72,13 @@ module.exports.findQuestionandCreateOptions = async function (req, res) {
     });
   }
 
+  let questionIsExist = await Questions.exists({ _id: req.params.id });
+  if (questionIsExist == null) {
+    return res.status(404).json({
+      message: "question does not exists",
+    });
+  }
+
   try {
     await Questions.findById(req.params.id).then(async (question) => {
       await Options.create({
@@ -109,6 +116,14 @@ module.exports.deleteQuestion = async function (req, res) {
       message: "question does not exists",
     });
   }
+
+  const optionsWithVotes = await Options.findOne({question_id: req.params.id, votes: {$gt: 0}});
+  if (optionsWithVotes) {
+    return res.status(403).json({
+      message: 'Cannot delete question with voted options'
+    });
+  }
+
   try {
     await Questions.findById(req.params.id).then(async (question) => {
       await Options.deleteMany({ _id: { $in: question.options } });

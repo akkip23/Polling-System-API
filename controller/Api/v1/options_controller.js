@@ -9,6 +9,15 @@ module.exports.deleteOption = async function (req, res) {
       message: "option does not exists",
     });
   }
+  
+  let option = await Options.findById(req.params.id)
+  if (option.votes > 0) {
+    return res.status(403).json({
+      option: option,
+      message: "The options has votes it cannot be deleted",
+    });
+  }
+
   try {
     await Options.findByIdAndDelete(req.params.id).then(async (option) => {
       await Questions.findByIdAndUpdate(option.question_id, {
