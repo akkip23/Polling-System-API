@@ -2,16 +2,27 @@
 const Questions = require("../../../model/Questions");
 //require schema to save Options data
 const Options = require("../../../model/Options");
+const mongoose = require('mongoose');
 
 //delete option of a question if the option contains have votes to it the option cannot be deleted
 module.exports.deleteOption = async function (req, res) {
 
-  //check if the option id exist for the selected option
-  let optionIsExist = await Options.exists({ _id: req.params.id });
-  if (optionIsExist == null) {
-    return res.status(404).json({
-      message: "option does not exists",
-    });
+  //check if the id is a valid id or not
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {    
+    return res.status(400).json({ error: 'Invalid Question ID format.' });
+  } 
+  
+  //check if the Option exist in the database
+  try {
+    const userId = req.params.id;
+    const users = await Options.find({ _id: userId });
+
+    if (users.length === 0) {
+      // No Question found      
+      return res.status(404).json({ error: 'Question does not exist.' });
+    }
+  } catch (error) {
+    console.error('Error querying the database:', error); 
   }
   
   //find option and check if the options has votes to it
@@ -44,12 +55,22 @@ module.exports.deleteOption = async function (req, res) {
 //add votes to a particular options of a question
 module.exports.addVotes = async function (req, res) {
 
-  //check if the option id exist for the selected option
-  let optionIsExist = await Options.exists({ _id: req.params.id });
-  if (optionIsExist == null) {
-    return res.status(404).json({
-      message: "option does not exists",
-    });
+  //check if the id is a valid id or not
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {    
+    return res.status(400).json({ error: 'Invalid Question ID format.' });
+  } 
+  
+  //check if the Option exist in the database
+  try {
+    const userId = req.params.id;
+    const users = await Options.find({ _id: userId });
+
+    if (users.length === 0) {
+      // No Question found      
+      return res.status(404).json({ error: 'Question does not exist.' });
+    }
+  } catch (error) {
+    console.error('Error querying the database:', error); 
   }
 
   try {

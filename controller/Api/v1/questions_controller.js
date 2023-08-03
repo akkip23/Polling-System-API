@@ -2,10 +2,11 @@
 const Questions = require("../../../model/Questions");
 //require schema to save Options data
 const Options = require("../../../model/Options");
+const mongoose = require('mongoose');
 
 //create controller action to handle req for new question and add it to DB
 module.exports.create = async function (req, res) {
-  if (req.body.question == undefined || req.body.question == null) { 
+  if (req.body.question == undefined || req.body.question == null) {
     return res.status(400).json({
       message:
         "error creating question wrong input key name use 'question' as key",
@@ -27,45 +28,62 @@ module.exports.create = async function (req, res) {
 
 //view all question list
 module.exports.view = async function (req, res) {
-  await Questions.find({}).populate("options").then((data) => {
-    if (data.length > 0) {
-      return res.status(200).json({
-        questions: {
-          data,
-        },
-      });
-    } else {
-      return res.status(200).json({
-        message: "No Questions Available to show, Add New Questions to view",
-      });
-    }
-  });
+  await Questions.find({})
+    .populate("options")
+    .then((data) => {
+      if (data.length > 0) {
+        return res.status(200).json({
+          questions: {
+            data,
+          },
+        });
+      } else {
+        return res.status(200).json({
+          message: "No Questions Available to show, Add New Questions to view",
+        });
+      }
+    });
 };
 
 //view question and options with selected question id
 module.exports.viewQuestionWithID = async function (req, res) {
-  let questionIsExist = await Questions.exists({ _id: req.params.id });
-  if (questionIsExist == null) {
-    return res.status(404).json({
-      message: "question does not exists",
-    });
-  }
+
+  //check if the id is a valid id or not
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {    
+    return res.status(400).json({ error: 'Invalid Question ID format.' });
+  } 
+  
+  //check if the question exist in the database
+  try {
+    const userId = req.params.id;
+    const users = await Questions.find({ _id: userId });
+
+    if (users.length === 0) {
+      // No Question found      
+      return res.status(404).json({ error: 'Question does not exist.' });
+    }
+  } catch (error) {
+    console.error('Error querying the database:', error); 
+  } 
+  
   await Questions.findById(req.params.id)
-    .populate("options")
-    .then((question) => {
-      return res.status(200).json({
-        question,
-      });
-    })
-    .catch((err) => {
-      res.status(404).json({
-        message: `Error finding question`,
-      });
+  .populate("options") 
+  .then((question) => {
+    return res.status(200).json({
+      question,
     });
+  })
+  .catch((err) => {
+    res.status(404).json({
+      message: `Error finding question`,
+    });
+  });
 };
 
 //find question and add option to the it
 module.exports.findQuestionandCreateOptions = async function (req, res) {
+
+  //check if req.body key name is valid or not
   if (req.body.text == undefined || req.body.text == null) {
     return res.status(400).json({
       message:
@@ -73,12 +91,23 @@ module.exports.findQuestionandCreateOptions = async function (req, res) {
     });
   }
 
-  let questionIsExist = await Questions.exists({ _id: req.params.id });
-  if (questionIsExist == null) {
-    return res.status(404).json({
-      message: "question does not exists",
-    });
-  }
+  //check if the id is a valid id or not
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {    
+    return res.status(400).json({ error: 'Invalid Question ID format.' });
+  } 
+  
+  //check if the question exist in the database
+  try {
+    const userId = req.params.id;
+    const users = await Questions.find({ _id: userId });
+
+    if (users.length === 0) {
+      // No Question found      
+      return res.status(404).json({ error: 'Question does not exist.' });
+    }
+  } catch (error) {
+    console.error('Error querying the database:', error); 
+  } 
 
   try {
     await Questions.findById(req.params.id).then(async (question) => {
@@ -111,17 +140,33 @@ module.exports.findQuestionandCreateOptions = async function (req, res) {
 
 //delete the question and it's associated options
 module.exports.deleteQuestion = async function (req, res) {
-  let questionIsExist = await Questions.exists({ _id: req.params.id });
-  if (questionIsExist == null) {
-    return res.status(404).json({
-      message: "question does not exists",
-    });
-  }
 
-  const optionsWithVotes = await Options.findOne({question_id: req.params.id, votes: {$gt: 0}});
+  //check if the id is a valid id or not
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {    
+    return res.status(400).json({ error: 'Invalid Question ID format.' });
+  } 
+  
+  //check if the question exist in the database
+  try {
+    const userId = req.params.id;
+    const users = await Questions.find({ _id: userId });
+
+    if (users.length === 0) {
+      // No Question found      
+      return res.status(404).json({ error: 'Question does not exist.' });
+    }
+  } catch (error) {
+    console.error('Error querying the database:', error); 
+  }  
+
+  //check if any option exist and if exist check if any option has any votes if yes option cannot be deleted
+  const optionsWithVotes = await Options.findOne({
+    question_id: req.params.id,
+    votes: { $gt: 0 },
+  });
   if (optionsWithVotes) {
     return res.status(403).json({
-      message: 'Cannot delete question with voted options'
+      message: "Cannot delete question with voted options",
     });
   }
 
